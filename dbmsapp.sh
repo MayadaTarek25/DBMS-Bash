@@ -258,11 +258,11 @@ function dropTable {
                         rm $table 
 			rm $metatable  
 			echo "$name Table is removed successfully"
-			mainMenu
+			connectToDatabaseMenu
                 
                 elif [[ $answer = [Nn] ]]
                 then
-                        mainMenu
+                        connectToDatabaseMenu
                 else
                         "Please Try Again"
                         dropTable
@@ -289,13 +289,8 @@ function selectFromTable {
 		echo "please Enter the PK for the row you want to select"
 		read PK
 		var=$(awk -F, '{ if($1 == "'"$PK"'") {print $0;} }' $table)
-		#echo $var >file1
-		
 		if [[ $var != "" ]]
 		then
-			#echo "Data for this PK is"
-			#echo "$colnames"
-			#echo $var
 			showRow $colnum $colnames $var
 			sleep 1
 			connectToDatabaseMenu
@@ -323,24 +318,28 @@ function deleteFromTable {
                 colnum=`head -3 $metatable | tail -1`
                 colnames=`head -4 $metatable | tail -1`
                 echo "This is Table has $colnum colunms ($colnames) first colunm is the primary key"
-		echo "Are you sure you want to delete this row"
-		read answer
-		if [[ $answer = [Yy] ]]
-		then
-			echo "please Enter the PK for the row  you want to delete"
-                        read PK
-                        sed "/^$PK/d" $table>file.csv
-		        cat file.csv>$table
-		        rm file.csv
-                        if [[ $? == 0 ]]
-                        then
-				echo "This row is deleted succesfully"
+		echo "please Enter the PK for the row  you want to delete"
+                read PK
+                var=$(awk -F, '{ if($1 == "'"$PK"'") {print $0;} }' $table)
+		if [[ $var != "" ]]
+		then 
+			echo "Are you sure you want to delete this row?"
+		        echo "(Y/N)"
+		        read answer
+		        if [[ $answer = [Yy] ]]
+		        then
+				sed "/^$PK/d" $table>file.csv
+		                cat file.csv>$table
+		                rm file.csv
+                                echo "This row is deleted succesfully"
+				sleep 1
 			        connectToDatabaseMenu
                         else
-				echo "This PK isn't exist"
                                 connectToDatabaseMenu
                         fi
 	        else
+			echo "This PK isn't exist"
+			sleep 1
 			connectToDatabaseMenu
 		fi
         else
